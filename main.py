@@ -29,7 +29,7 @@ class Gaten():
 		self.gat_distance = distance2(self.gat1x, self.gat1y, self.gat2x, self.gat2y)
 
 
-def create_horizontal_plate(root, offset_x:int, offset_y:int):
+def create_horizontal_plate(root, offset_x:int, offset_y:int, top:bool):
 	#######################
 	plate = Group(f"plate")
 	root.groups.append(plate)
@@ -76,21 +76,75 @@ def create_horizontal_plate(root, offset_x:int, offset_y:int):
 	holes.add_path(gat2)
 
 	#######################
-	wirehole_margin = 7
 	wirehole_radius = WIREHOLE_RADIUS
 
 	wireholes = Group(f"wireholes")
 	plate.add_group(wireholes)
 
-	wirehole_tl = Ellipse(offset_x + wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
-	wirehole_tr = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
-	wirehole_bl = Ellipse(offset_x + wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
-	wirehole_br = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
+	if top:
+		wirehole_margin = 5.5
+		wirehole_tl = Ellipse(offset_x + wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
+		wirehole_tr = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
+		wirehole_bl = Ellipse(offset_x + wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
+		wirehole_br = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
 
-	wireholes.add_ellipse(wirehole_tl)
-	wireholes.add_ellipse(wirehole_tr)
-	wireholes.add_ellipse(wirehole_bl)
-	wireholes.add_ellipse(wirehole_br)
+		wireholes.add_ellipse(wirehole_tl)
+		wireholes.add_ellipse(wirehole_tr)
+		wireholes.add_ellipse(wirehole_bl)
+		wireholes.add_ellipse(wirehole_br)
+
+		wirehole_margin = 8.5
+		wirehole_tl = Ellipse(offset_x + wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
+		wirehole_tr = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
+		wirehole_bl = Ellipse(offset_x + wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
+		wirehole_br = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
+
+		wireholes.add_ellipse(wirehole_tl)
+		wireholes.add_ellipse(wirehole_tr)
+		wireholes.add_ellipse(wirehole_bl)
+		wireholes.add_ellipse(wirehole_br)
+	else:
+		wirehole_margin = 7
+		wirehole_tl = Ellipse(offset_x + wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
+		wirehole_tr = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + wirehole_margin, wirehole_radius, RED)
+		wirehole_bl = Ellipse(offset_x + wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
+		wirehole_br = Ellipse(offset_x + BASE_WIDTH - wirehole_margin, offset_y + BASE_HEIGHT - wirehole_margin, wirehole_radius, RED)
+
+		wireholes.add_ellipse(wirehole_tl)
+		wireholes.add_ellipse(wirehole_tr)
+		wireholes.add_ellipse(wirehole_bl)
+		wireholes.add_ellipse(wirehole_br)
+
+def create_feet(root, offset_x, offset_y):
+	feet = Group(f"feet")
+	root.groups.append(feet)
+
+	FOOT_WIDTH = 35
+	FOOT_HEIGHT = THICKNESS * 1.5
+
+	for i in range(4):
+		offset_y += FOOT_HEIGHT * 3
+		
+		foot = Path(f"foot{i}", True)
+		foot.color = RED
+		foot.move((offset_x, offset_y))
+
+		#foot.add_node(0, 0)
+		add_rounded_corner(foot, 0, 0, 3, "TL")
+
+		#foot.add_node(FOOT_WIDTH, 0)
+		add_rounded_corner(foot, FOOT_WIDTH, 0, 3, "TR")
+
+		foot.add_node(FOOT_WIDTH, FOOT_HEIGHT * 2)
+		foot.add_node(FOOT_WIDTH, FOOT_HEIGHT * 2)
+		foot.add_node(FOOT_WIDTH - FOOT_HEIGHT, FOOT_HEIGHT * 2)
+		foot.add_node(FOOT_WIDTH - FOOT_HEIGHT, FOOT_HEIGHT)
+		foot.add_node(FOOT_HEIGHT, FOOT_HEIGHT)
+		foot.add_node(FOOT_HEIGHT, FOOT_HEIGHT * 2)
+		foot.add_node(0, FOOT_HEIGHT * 2)
+
+		feet.add_path(foot)
+
 
 def create_vertical_stand(root, offset_x, offset_y):
 	stand = Group(f"stand")
@@ -182,11 +236,20 @@ def create():
 
 	offset_x = 5
 	offset_y = 5
-	create_horizontal_plate(root, offset_x, offset_y)
+	create_horizontal_plate(root, offset_x, offset_y, top=False)
 
 	offset_x += BASE_WIDTH + 5
 	# offset_y += BASE_HEIGHT
 	create_vertical_stand(root, offset_x, offset_y)
+
+	create_feet(root, offset_x + 20, offset_y + 20)
+
+	offset_x += BASE_WIDTH / 2 + 10
+	# offset_y += BASE_HEIGHT
+	create_vertical_stand(root, offset_x, offset_y)
+
+	offset_x += BASE_WIDTH / 2 + 10
+	create_horizontal_plate(root, offset_x, offset_y, top=True)
 
 	save(root, os.path.join(OUTPUT_FOLDER, "tensile_box.svg"), "TENSILE", PAPER_WIDTH, PAPER_HEIGHT)
 
